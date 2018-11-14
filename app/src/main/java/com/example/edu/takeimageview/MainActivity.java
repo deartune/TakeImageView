@@ -17,7 +17,7 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 final int IMAGE_CAPTURE=102;
-    int LOAD_IMAGE = 101;
+    final int LOAD_IMAGE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,42 +31,41 @@ final int IMAGE_CAPTURE=102;
 
 
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.imageCaptureButton:
+                if (getPackageManager()
 
-        if(v.getId()==R.id.imageCaptureButton){
-        if(getPackageManager()
+                        .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                    Intent intent = new Intent();
+                    intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, IMAGE_CAPTURE);
+                }
+                break;
 
-                .hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
-            Intent intent = new Intent();
-            intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, IMAGE_CAPTURE);
+
+            case R.id.fromGalleryButton:
+
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, LOAD_IMAGE);
+                break;
         }
-
-    @Override
+    }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        ImageView imageView=findViewById(R.id.imageView);
-
+        ImageView imageView =findViewById(R.id.imageView);
+        switch(requestCode){
+        case IMAGE_CAPTURE:
         if (requestCode == IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap bitmap = (Bitmap) extras.get("data");
             imageView.setImageBitmap(bitmap);
-        }}}
-
-
-
-
-    if(v.getId()==R.id.fromGalleryButton){
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, LOAD_IMAGE);
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        ImageView imageViewFromGallery =findViewById(R.id.imageView);
-        if (data != null) {
+        }
+        break;
+            case LOAD_IMAGE:
+         if(data != null){
             Uri selectedImage = data.getData();
-            InputStream inputStream =
-
-                    null;
+            InputStream inputStream =null;
             try {
                 inputStream = this.getContentResolver().openInputStream(selectedImage);
             } catch (FileNotFoundException e) {
@@ -75,10 +74,11 @@ final int IMAGE_CAPTURE=102;
 
 
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-            imageViewFromGallery.setImageBitmap(bitmap);
-        }
-    }}
+            imageView.setImageBitmap(bitmap);
+
+        }break;
+    }}}
 
 
 
-}}
+
